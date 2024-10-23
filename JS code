@@ -1,0 +1,68 @@
+let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+function addTask() {
+    const taskInput = document.getElementById('new-task');
+    const taskText = taskInput.value.trim();
+    if (taskText !== '') {
+        tasks.push(taskText);
+        taskInput.value = ''; 
+        saveTasks();
+        displayTasks();
+    }
+}
+
+function displayTasks() {
+    const taskList = document.getElementById('task-list');
+    taskList.innerHTML = '';
+    tasks.forEach((task, index) => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <span id="task-${index}">${task}</span>
+            <div>
+                <button class="edit" onclick="editTask(${index})">Edit</button>
+                <button class="delete" onclick="deleteTask(${index})">Delete</button>
+            </div>
+        `;
+        taskList.appendChild(li);
+    });
+}
+
+function editTask(index) {
+    const taskElement = document.getElementById(`task-${index}`);
+    const taskText = tasks[index];
+
+    
+    taskElement.innerHTML = `
+        <input type="text" id="edit-task-${index}" value="${taskText}">
+    `;
+
+    const editInput = document.getElementById(`edit-task-${index}`);
+    editInput.focus();
+
+    
+    const editButton = document.querySelectorAll('.edit')[index];
+    editButton.innerText = 'Save';
+    editButton.setAttribute('onclick', `saveEdit(${index})`);
+}
+
+
+function saveEdit(index) {
+    const newTaskText = document.getElementById(`edit-task-${index}`).value.trim();
+    if (newTaskText !== '') {
+        tasks[index] = newTaskText;
+        saveTasks();
+        displayTasks();
+    }
+}
+
+function deleteTask(index) {
+    tasks.splice(index, 1);
+    saveTasks();
+    displayTasks();
+}
+
+function saveTasks() {
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+}
+
+document.getElementById('add-task-btn').addEventListener('click', addTask);
+window.addEventListener('load', displayTasks);
